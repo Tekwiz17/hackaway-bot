@@ -1,10 +1,21 @@
-const { App } = require('@slack/bolt');
+const { App, ExpressReceiver } = require('@slack/bolt');
 require('dotenv').config();
 
+// 1. Initialize the Express Receiver to handle HTTP webhooks explicitly
+const receiver = new ExpressReceiver({
+  signingSecret: process.env.SLACK_SIGNING_SECRET,
+  endpoints: '/slack/events'
+});
+
+// 2. Initialize the App using that custom receiver
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
-  signingSecret: process.env.SLACK_SIGNING_SECRET,
-  port: process.env.PORT || 3000
+  receiver: receiver
+});
+
+// A simple root route to keep Render's health checks happy without breaking Slack
+receiver.router.get('/', (req, res) => {
+  res.send('Hackaway Slack Bot is up and running!');
 });
 
 // Helper for parsing slash command arguments
@@ -204,6 +215,7 @@ app.command('/hackaway-help', async ({ command, ack, say }) => {
 });
 
 (async () => {
-  await app.start();
-  console.log('⚡️ Hackaway is running with all 15 commands active!');
+  // Use receiver.start instead of app.start to cleanly bind our custom express parameters
+  await receiver.start(process.env.PORT || 3000);
+  console.log('⚡️ Hackaway is running via ExpressReceiver with all 15 commands active!');
 })();
