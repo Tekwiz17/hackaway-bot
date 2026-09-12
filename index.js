@@ -1,220 +1,186 @@
 const { App, ExpressReceiver } = require('@slack/bolt');
 require('dotenv').config();
 
-// 1. Initialize the Express Receiver to handle HTTP webhooks explicitly
-const receiver = new ExpressReceiver({
+const r = new ExpressReceiver({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   endpoints: '/slack/events'
 });
 
-// 2. Initialize the App using that custom receiver
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
-  receiver: receiver
+  receiver: r
 });
 
-// A simple root route to keep Render's health checks happy without breaking Slack
-receiver.router.get('/', (req, res) => {
-  res.send('Hackaway Slack Bot is up and running!');
+r.router.get('/', (req, res) => {
+  res.send('ok');
 });
 
-// Helper for parsing slash command arguments
-const getArgs = (text) => text ? text.trim() : '';
+const parseText = (t) => t ? t.trim() : '';
 
-// ==========================================
-// 🎮 CATEGORY 1: FUN & GAMES
-// ==========================================
-
-// 1. Coinflip
 app.command('/hackaway-coinflip', async ({ command, ack, say }) => {
   await ack();
-  const result = Math.random() < 0.5 ? 'Heads 🪙' : 'Tails 🪙';
-  await say(`<@${command.user_id}> flipped a coin: *${result}*`);
+  const res = Math.random() < 0.5 ? 'Heads 🪙' : 'Tails 🪙';
+  await say(`<@${command.user_id}> flipped a coin: *${res}*`);
 });
 
-// 2. Dice Roller
 app.command('/hackaway-dice', async ({ command, ack, say }) => {
   await ack();
-  const args = getArgs(command.text);
-  const sides = parseInt(args) || 6;
-  const roll = Math.floor(Math.random() * sides) + 1;
-  await say(`🎲 <@${command.user_id}> rolled a d${sides} and got a **${roll}**!`);
+  const s = parseInt(parseText(command.text)) || 6;
+  const roll = Math.floor(Math.random() * s) + 1;
+  await say(`🎲 <@${command.user_id}> rolled a d${s} and landed on *${roll}*`);
 });
 
-// 3. Rock Paper Scissors
 app.command('/hackaway-rps', async ({ command, ack, say }) => {
   await ack();
-  const userChoice = getArgs(command.text).toLowerCase();
-  const choices = ['rock', 'paper', 'scissors'];
-  if (!choices.includes(userChoice)) {
-    await say('Please specify `rock`, `paper`, or `scissors`. Example: `/hackaway-rps rock`');
+  const user = parseText(command.text).toLowerCase();
+  const opts = ['rock', 'paper', 'scissors'];
+  if (!opts.includes(user)) {
+    await say("type rock, paper, or scissors after the command, like `/hackaway-rps rock`");
     return;
   }
-  const botChoice = choices[Math.floor(Math.random() * 3)];
-  let result = "It's a tie! 👔";
+  const bot = opts[Math.floor(Math.random() * 3)];
+  let outcome = "draw 🤝";
   if (
-    (userChoice === 'rock' && botChoice === 'scissors') ||
-    (userChoice === 'paper' && botChoice === 'rock') ||
-    (userChoice === 'scissors' && botChoice === 'paper')
+    (user === 'rock' && bot === 'scissors') ||
+    (user === 'paper' && bot === 'rock') ||
+    (user === 'scissors' && bot === 'paper')
   ) {
-    result = 'You win! 🎉';
-  } else if (userChoice !== botChoice) {
-    result = 'Hackaway wins! 🤖';
+    outcome = 'you got me, nice win 🎉';
+  } else if (user !== bot) {
+    outcome = 'haha i take this one 🤖';
   }
-  await say(`<@${command.user_id}> chose *${userChoice}*. I chose *${botChoice}*.\n**${result}**`);
+  await say(`<@${command.user_id}> threw ${user}, I went with ${bot}.\n> *${outcome}*`);
 });
 
-// 4. Magic 8-Ball
 app.command('/hackaway-8ball', async ({ command, ack, say }) => {
   await ack();
   const answers = [
-    'It is certain 🟢', 'Without a doubt 🟢', 'Signs point to yes 🟢',
-    'Reply hazy, try again 🟡', 'Ask again later 🟡', 'Better not tell you now 🟡',
-    'Don\'t count on it 🔴', 'My sources say no 🔴', 'Very doubtful 🔴'
+    'for sure', 'yeah absolutely', 'looks solid',
+    'hard to tell right now', 'maybe ask later', 'idk tbh',
+    'nope', 'doubt it', 'definitely not'
   ];
-  const response = answers[Math.floor(Math.random() * answers.length)];
-  await say(`🔮 *Question:* ${command.text || 'Is this bot awesome?'}\n*Answer:* ${response}`);
+  const ans = answers[Math.floor(Math.random() * answers.length)];
+  const q = command.text || 'is this bot cool?';
+  await say(`🔮 *${q}*\n> ${ans}`);
 });
 
-// 5. Hacker Name Generator
 app.command('/hackaway-hackname', async ({ command, ack, say }) => {
   await ack();
-  const prefixes = ['Neo', 'Cyber', 'Null', 'Quantum', 'Glitch', 'Proxy', 'Crypto', 'Byte'];
-  const suffixes = ['Striker', 'Ghost', 'Phantom', 'Viper', 'Daemon', 'Matrix', 'Rogue', 'Echo'];
-  const p = prefixes[Math.floor(Math.random() * prefixes.length)];
-  const s = suffixes[Math.floor(Math.random() * suffixes.length)];
-  const inputName = getArgs(command.text) || command.user_name;
-  await say(`🕶️ Generated alias for *${inputName}*:\n> **${p}_${s}**`);
+  const p = ['Neo', 'Cyber', 'Null', 'Quantum', 'Glitch', 'Proxy', 'Crypto', 'Byte'][Math.floor(Math.random() * 8)];
+  const s = ['Striker', 'Ghost', 'Phantom', 'Viper', 'Daemon', 'Matrix', 'Rogue', 'Echo'][Math.floor(Math.random() * 8)];
+  const n = parseText(command.text) || command.user_name;
+  await say(`🕶️ generated alias for ${n}:\n>\`${p}_${s}\``);
 });
 
-// ==========================================
-// 🛠️ CATEGORY 2: UTILITIES & PRODUCTIVITY
-// ==========================================
-
-// 6. Basic Calculator
 app.command('/hackaway-calc', async ({ command, ack, say }) => {
   await ack();
-  const expression = getArgs(command.text);
-  if (!expression || /[^0-9+\-*/().\s]/.test(expression)) {
-    await say('Please provide a valid basic math equation (numbers and +, -, *, / only).');
+  const exp = parseText(command.text);
+  if (!exp || /[^0-9+\-*/().\s]/.test(exp)) {
+    await say('keep it simple with numbers and basic math symbols (+, -, *, /)');
     return;
   }
   try {
-    const result = Function(`"use strict"; return (${expression})`)();
-    await say(`🧮 \`${expression}\` = **${result}**`);
+    const val = Function(`"use strict"; return (${exp})`)();
+    await say(`🧮 \`${exp}\` = *${val}*`);
   } catch {
-    await say('Failed to calculate. Check your math syntax!');
+    await say('hit a snag computing that, check your syntax');
   }
 });
 
-// 7. Timer
 app.command('/hackaway-timer', async ({ command, ack, say }) => {
   await ack();
-  const mins = parseFloat(getArgs(command.text)) || 1;
-  await say(`⏰ Timer set for **${mins} minute(s)**. I will alert you here!`);
+  const mins = parseFloat(parseText(command.text)) || 1;
+  await say(`⏰ gotcha, timer set for ${mins} minute(s). I'll ping you.`);
   setTimeout(async () => {
-    await say(`🚨 *BEEP BEEP!* <@${command.user_id}>, your ${mins} minute timer is up!`);
+    await say(`🚨 heads up <@${command.user_id}>, your ${mins}m timer just went off!`);
   }, mins * 60 * 1000);
 });
 
-// 8. Poll Generator
 app.command('/hackaway-poll', async ({ command, ack, say }) => {
   await ack();
-  const parts = command.text.split('|').map(p => p.trim());
+  const parts = command.text.split('|').map(x => x.trim());
   if (parts.length < 3) {
-    await say('Format: `/hackaway-poll Question | Option A | Option B`');
+    await say('format needs to be: `/hackaway-poll Question | Option A | Option B`');
     return;
   }
-  await say(`📊 *POLL:* ${parts[0]}\n1️⃣ ${parts[1]}\n2️⃣ ${parts[2]}\n_(React below to cast your vote!)_`);
+  await say(`📊 *${parts[0]}*\n1️⃣ ${parts[1]}\n2️⃣ ${parts[2]}\n_drop a reaction to vote_`);
 });
 
-// 9. Base64 Encoder/Decoder
 app.command('/hackaway-base64', async ({ command, ack, say }) => {
   await ack();
-  const parts = getArgs(command.text).split(' ');
+  const parts = parseText(command.text).split(' ');
   const mode = parts[0];
   const payload = parts.slice(1).join(' ');
   if (mode === 'encode') {
-    const encoded = Buffer.from(payload).toString('base64');
-    await say(`🔒 *Encoded:* \`${encoded}\``);
+    await say(`🔒 \`${Buffer.from(payload).toString('base64')}\``);
   } else if (mode === 'decode') {
     try {
-      const decoded = Buffer.from(payload, 'base64').toString('utf-8');
-      await say(`🔓 *Decoded:* \`${decoded}\``);
+      await say(`🔓 \`${Buffer.from(payload, 'base64').toString('utf-8')}\``);
     } catch {
-      await say('Invalid Base64 string.');
+      await say('that base64 string looks broken');
     }
   } else {
-    await say('Format: `/hackaway-base64 encode <text>` or `/hackaway-base64 decode <text>`');
+    await say('try: `/hackaway-base64 encode <text>` or `/hackaway-base64 decode <text>`');
   }
 });
 
-// 10. Random Password Generator
 app.command('/hackaway-password', async ({ command, ack, say }) => {
   await ack();
-  const len = parseInt(getArgs(command.text)) || 12;
+  const len = parseInt(parseText(command.text)) || 12;
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
   let pass = '';
   for (let i = 0; i < len; i++) pass += chars[Math.floor(Math.random() * chars.length)];
-  await say(`🔑 Generated secure key: ||\`${pass}\`|| *(Click text block to reveal)*`);
+  await say(`🔑 here is your key: ||\`${pass}\`|| *(click to reveal)*`);
 });
 
-// ==========================================
-// 💡 CATEGORY 3: MOTIVATION & CODING INSPIRATION
-// ==========================================
-
-// 11. Ship Hype
 app.command('/hackaway-ship', async ({ command, ack, say }) => {
   await ack();
-  await say(`💥🚀🚀 **SHIP ALERTTT!** 🚀🚀💥\nLet's go <@${command.user_id}>! Another project deployed to the cosmos! Keep up the hyper-growth! 🌟🌟`);
+  await say(`🚀 let's go <@${command.user_id}>! another ship landed! 💥🔥`);
 });
 
-// 12. Coding Quote
 app.command('/hackaway-quote', async ({ command, ack, say }) => {
   await ack();
   const quotes = [
     '"Simplicity is the soul of efficiency." — Austin Freeman',
     '"Make it work, make it right, make it fast." — Kent Beck',
     '"Talk is cheap. Show me the code." — Linus Torvalds',
-    '"Programs must be written for people to read, and only incidentally for machines to execute." — Abelson & Sussman'
+    '"Programs must be written for people to read..." — Abelson & Sussman'
   ];
-  await say(`💬 ${quotes[Math.floor(Math.random() * quotes.length)]}`);
+  await say(`> ${quotes[Math.floor(Math.random() * quotes.length)]}`);
 });
 
-// 13. Programmer Joke
 app.command('/hackaway-joke', async ({ command, ack, say }) => {
   await ack();
   const jokes = [
-    "Why do programmers prefer dark mode? Because light attracts bugs! 🪳",
-    "How many programmers does it take to change a lightbulb? None, that's a hardware problem. 💡",
-    "There are 10 types of people: those who understand binary, and those who don't. 🔢"
+    "why do programmers prefer dark mode? because light attracts bugs 🪳",
+    "how many programmers does it take to change a lightbulb? none, that's a hardware issue 💡",
+    "there are 10 types of people: those who get binary, and those who don't 🔢"
   ];
-  await say(`🃏 ${jokes[Math.floor(Math.random() * jokes.length)]}`);
+  await say(jokes[Math.floor(Math.random() * jokes.length)]);
 });
 
-// 14. Debugging Advice
 app.command('/hackaway-debug', async ({ command, ack, say }) => {
   await ack();
   const tips = [
-    "Stand up, stretch, and go drink a glass of water. 💧",
-    "Explain your broken code line-by-line to a rubber duck. 🦆",
-    "Delete your `node_modules` folder and run `npm install` again. 🗑️",
-    "Check your console logs. Did you actually read the error stack trace? 📋"
+    "step away for a second, get some water 💧",
+    "try talking through your code out loud to a rubber duck 🦆",
+    "delete `node_modules`, clear cache, and run `npm install` again 🗑️",
+    "actually read the error stack trace instead of skimming it 📋"
   ];
-  await say(`🛠️ *Hackaway Debug Helper:* ${tips[Math.floor(Math.random() * tips.length)]}`);
+  await say(`💡 *quick tip:* ${tips[Math.floor(Math.random() * tips.length)]}`);
 });
 
-// 15. Help Command
 app.command('/hackaway-help', async ({ command, ack, say }) => {
   await ack();
-  const manual = `🤖 **Hackaway Bot Manual**\n\n` +
-    `*Games:* \`/hackaway-coinflip\`, \`/hackaway-dice [sides]\`, \`/hackaway-rps [choice]\`, \`/hackaway-8ball [q]\`, \`/hackaway-hackname [name]\`\n` +
-    `*Utilities:* \`/hackaway-calc [math]\`, \`/hackaway-timer [mins]\`, \`/hackaway-poll Q | A | B\`, \`/hackaway-base64 [mode] [txt]\`, \`/hackaway-password [len]\`\n` +
-    `*Inspiration:* \`/hackaway-ship\`, \`/hackaway-quote\`, \`/hackaway-joke\`, \`/hackaway-debug\``;
-  await say(manual);
+  await say(
+    `Here's everything you can run:\n\n` +
+    `*Games:* \`/hackaway-coinflip\`, \`/hackaway-dice\`, \`/hackaway-rps\`, \`/hackaway-8ball\`, \`/hackaway-hackname\`\n` +
+    `*Tools:* \`/hackaway-calc\`, \`/hackaway-timer\`, \`/hackaway-poll\`, \`/hackaway-base64\`, \`/hackaway-password\`\n` +
+    `*Vibes:* \`/hackaway-ship\`, \`/hackaway-quote\`, \`/hackaway-joke\`, \`/hackaway-debug\``
+  );
 });
 
 (async () => {
-  await receiver.start(process.env.PORT || 3000);
-  console.log('⚡️ Hackaway is running via ExpressReceiver with all 15 commands active!');
+  await r.start(process.env.PORT || 3000);
+  console.log('Bot is online.');
 })();
