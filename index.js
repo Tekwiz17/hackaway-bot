@@ -215,7 +215,6 @@ app.command('/hackaway-help', async ({ command, ack, say }) => {
 });
 
 (async () => {
-  // Use receiver.start instead of app.start to cleanly bind our custom express parameters
   await receiver.start(process.env.PORT || 3000);
   console.log('⚡️ Hackaway is running via ExpressReceiver with all 15 commands active!');
 })();
