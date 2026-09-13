@@ -1,75 +1,86 @@
-# Hackaway Bot
+# Hackaway Bot 🚀
 
-A small Slack bot built for Hackaway events — part useful tools, part games, and part things that are just fun to have in a Slack workspace.
+This is a Slack bot I made for Hackaway.
 
-It is intentionally simple: one Node.js app, Slack Bolt, and environment variables. There is no database or complicated setup to get in the way.
+I wanted it to have some actually useful commands, but also a bunch of random stuff that makes Slack more fun. So there are games, little tools, jokes, and some completely unnecessary commands that are still pretty fun.
 
-## Features
+It runs with Node.js and Slack Bolt. There isn't a database or anything complicated, which makes it pretty easy to run and change.
+
+## What can it do?
 
 ### 🎮 Games
-- **Coin flip** — heads or tails
-- **Dice rolls** — roll any-sided dice
-- **Rock Paper Scissors** — play against the bot
-- **8-ball** — ask a question and get a random answer
-- **Hack name generator** — generate a goofy hacker-style alias
 
-### 🛠️ Handy tools
-- **Calculator** — basic arithmetic from Slack
-- **Timer** — set a timer and get pinged when it finishes
-- **Polls** — make a simple reaction-based poll
-- **Base64** — encode or decode text
-- **Password generator** — generate a random password
+- `/hackaway-coinflip` - flips a coin
+- `/hackaway-dice` - rolls a die
+- `/hackaway-rps` - play rock paper scissors against the bot
+- `/hackaway-8ball` - ask the magic 8-ball a question
+- `/hackaway-hackname` - makes a random hacker name
 
-### ✨ Just-for-fun commands
-- **Ship** — celebrate another ship landing
-- **Quotes** — random programming/tech quote
-- **Jokes** — random programming joke
-- **Debug tips** — get a random debugging suggestion
+### 🛠️ Useful stuff
 
-There is also a built-in help command that lists the available commands.
+- `/hackaway-calc` - does basic math
+- `/hackaway-timer` - starts a timer and pings you when it's done
+- `/hackaway-poll` - makes a really simple poll
+- `/hackaway-base64` - encode/decode Base64
+- `/hackaway-password` - makes a random password
 
-## Requirements
+### 🤪 Random stuff
 
-You will need:
+- `/hackaway-ship` - celebrates when another ship lands
+- `/hackaway-quote` - gives you a random tech/programming quote
+- `/hackaway-joke` - tells a programming joke
+- `/hackaway-debug` - gives you a random debugging tip
+
+You can also use `/hackaway-help` to see all of the commands from inside Slack.
+
+## What you need
+
+You'll need:
 
 - Node.js
-- A Slack workspace where you can install apps
+- A Slack workspace where you can install an app
 - A Slack app with a bot token and signing secret
 
-The project uses **@slack/bolt 4.1.1** and **dotenv 16.4.5**.
+The bot uses **Slack Bolt 4.1.1** and **dotenv 16.4.5**.
 
-## Run it yourself
+## Running it
 
-### 1. Clone the repository
+### 1. Clone it
 
 ```bash
 git clone https://github.com/Tekwiz17/hackaway-bot.git
 cd hackaway-bot
 ```
 
-### 2. Install dependencies
+### 2. Install everything
 
 ```bash
 npm install
 ```
 
-### 3. Create a Slack app
+### 3. Set up the Slack app
 
-Create a new app from the Slack API dashboard and install it into your workspace.
+Make a Slack app from the Slack API dashboard and install it into your workspace.
 
-This project uses Slack Bolt's `ExpressReceiver` and receives requests through `/slack/events`.
+The bot listens on:
 
-Add each slash command from the command table below to your Slack app. Set the request URL to the public URL where your bot is running.
+```text
+/slack/events
+```
 
-For example:
+You also need to add the slash commands listed below to your Slack app.
+
+For the request URL, use the public URL of wherever you're running the bot, followed by `/slack/events`.
+
+Example:
 
 ```text
 https://your-domain.example/slack/events
 ```
 
-### 4. Create your `.env` file
+### 4. Make a `.env` file
 
-In the project folder, create a file named `.env`:
+Create a file called `.env` in the project folder:
 
 ```env
 SLACK_BOT_TOKEN=xoxb-your-bot-token
@@ -77,47 +88,49 @@ SLACK_SIGNING_SECRET=your-signing-secret
 PORT=3000
 ```
 
-`PORT` is optional. The application uses port `3000` when it is not set.
+You don't have to add `PORT` because the bot uses `3000` by default.
 
-**Keep this file private.** Never commit your bot token or signing secret to GitHub.
+Also, seriously, don't put your `.env` file on GitHub. Your bot token and signing secret should stay private.
 
-### 5. Start the bot
+### 5. Start it
 
 ```bash
 npm start
 ```
 
-When the server starts successfully, it prints:
+You should see:
 
 ```text
 Bot is online.
 ```
 
+And that's it.
+
 ## Commands
 
-Every command uses the `/hackaway-` prefix.
+All of the commands start with `/hackaway-`.
 
-| Command | Description | Example |
+| Command | What it does | Example |
 | --- | --- | --- |
-| `/hackaway-help` | Shows all available commands | `/hackaway-help` |
+| `/hackaway-help` | Shows all the commands | `/hackaway-help` |
 | `/hackaway-coinflip` | Flips a coin | `/hackaway-coinflip` |
 | `/hackaway-dice` | Rolls a die | `/hackaway-dice 20` |
-| `/hackaway-rps` | Plays Rock Paper Scissors | `/hackaway-rps rock` |
+| `/hackaway-rps` | Rock paper scissors | `/hackaway-rps rock` |
 | `/hackaway-8ball` | Answers a question | `/hackaway-8ball will we win?` |
-| `/hackaway-hackname` | Generates a hacker-style alias | `/hackaway-hackname Austin` |
-| `/hackaway-calc` | Calculates basic arithmetic | `/hackaway-calc 12 * 4` |
-| `/hackaway-timer` | Starts a timer in minutes | `/hackaway-timer 5` |
-| `/hackaway-poll` | Creates a simple reaction poll | `/hackaway-poll Pizza tonight? \| Yes \| No` |
-| `/hackaway-base64` | Encodes or decodes Base64 | `/hackaway-base64 encode hello` |
-| `/hackaway-password` | Generates a random password | `/hackaway-password 16` |
+| `/hackaway-hackname` | Makes a hacker name | `/hackaway-hackname Austin` |
+| `/hackaway-calc` | Does basic math | `/hackaway-calc 12 * 4` |
+| `/hackaway-timer` | Starts a timer | `/hackaway-timer 5` |
+| `/hackaway-poll` | Makes a poll | `/hackaway-poll Pizza tonight? \| Yes \| No` |
+| `/hackaway-base64` | Encodes/decodes Base64 | `/hackaway-base64 encode hello` |
+| `/hackaway-password` | Makes a random password | `/hackaway-password 16` |
 | `/hackaway-ship` | Sends a ship celebration | `/hackaway-ship` |
-| `/hackaway-quote` | Sends a random tech quote | `/hackaway-quote` |
-| `/hackaway-joke` | Sends a programming joke | `/hackaway-joke` |
-| `/hackaway-debug` | Sends a debugging tip | `/hackaway-debug` |
+| `/hackaway-quote` | Random tech quote | `/hackaway-quote` |
+| `/hackaway-joke` | Random programming joke | `/hackaway-joke` |
+| `/hackaway-debug` | Random debugging tip | `/hackaway-debug` |
 
 ### Dice
 
-Without an argument, the bot rolls a d6. Pass a number to choose the number of sides.
+Just run the command for a normal d6. You can also put a number after it for a different number of sides.
 
 ```text
 /hackaway-dice
@@ -126,31 +139,37 @@ Without an argument, the bot rolls a d6. Pass a number to choose the number of s
 
 ### Rock Paper Scissors
 
-Use `rock`, `paper`, or `scissors`.
+Type `rock`, `paper`, or `scissors`.
 
 ```text
 /hackaway-rps paper
 ```
 
+Then the bot picks one too and tells you who won.
+
 ### 8-ball
 
-Put your question after the command. Leaving it blank uses a default question.
+Ask a question after the command.
 
 ```text
 /hackaway-8ball should I submit?
 ```
 
-### Hack name
+No question? That's fine too. It has a default one.
 
-Add a name or nickname. Leave it blank and the bot uses your Slack username.
+### Hack Name
+
+Give it a name, or leave it blank and it uses your Slack username.
 
 ```text
 /hackaway-hackname Austin
 ```
 
+You might get something like `Cyber_Ghost` or `Quantum_Rogue`.
+
 ### Calculator
 
-The calculator accepts numbers, parentheses, spaces, and basic arithmetic operators such as `+`, `-`, `*`, and `/`.
+It handles basic math with numbers, parentheses, and `+`, `-`, `*`, and `/`.
 
 ```text
 /hackaway-calc (25 + 5) / 3
@@ -158,25 +177,27 @@ The calculator accepts numbers, parentheses, spaces, and basic arithmetic operat
 
 ### Timer
 
-The timer is measured in minutes. With no argument, it defaults to 1 minute. When it finishes, the bot pings the person who started it.
+The timer uses minutes. If you don't put a number, it uses 1 minute.
 
 ```text
 /hackaway-timer 10
 ```
 
+When it finishes, the bot pings the person who started it.
+
 ### Poll
 
-Separate the question and choices with `|` characters.
+Put the question and answers between `|` characters.
 
 ```text
 /hackaway-poll Best snack? | Chips | Candy
 ```
 
-The current implementation requires a question and at least two choices, then asks people to vote with reactions.
+Right now it supports a question and at least two choices. People can vote with reactions.
 
 ### Base64
 
-Use either `encode` or `decode` followed by the data.
+Use `encode` or `decode` and then the text.
 
 ```text
 /hackaway-base64 encode hello world
@@ -185,18 +206,20 @@ Use either `encode` or `decode` followed by the data.
 
 ### Password generator
 
-Give the desired length or leave it blank for the default 12-character password. The generated value is hidden in Slack until clicked.
+You can choose the length, or leave it blank for the default 12-character password.
 
 ```text
 /hackaway-password
 /hackaway-password 20
 ```
 
-## Make your own
+The password is hidden in Slack until you click it.
 
-Most of the bot lives in `index.js`, which keeps the project easy to understand and customize.
+## Making your own commands
 
-To add a new command, use the same basic pattern:
+Most of the bot is in `index.js`, so adding stuff is pretty straightforward.
+
+A basic command looks like this:
 
 ```js
 app.command('/hackaway-example', async ({ command, ack, say }) => {
@@ -205,50 +228,50 @@ app.command('/hackaway-example', async ({ command, ack, say }) => {
 });
 ```
 
-Then create the matching slash command in your Slack app.
+Then you add the matching slash command in your Slack app.
 
-### Easy things to customize
+That's basically how I built the rest of the commands too.
 
-You can change the random responses, rename commands, modify messages, or add completely new commands without changing the overall structure.
+Some stuff you could add:
 
-Some ideas for a hackathon workspace:
-
-- Team randomizers
 - Hackathon countdowns
+- Team randomizers
 - Tech trivia
-- Random challenge prompts
-- Standup helpers
-- Project name generators
+- More games
+- Random challenge generators
+- More stupid/funny commands
 
-Because the current bot does not use a database, simple additions can stay lightweight.
-
-## Project structure
+## Project files
 
 ```text
 hackaway-bot/
-├── index.js       # Bot logic and slash commands
-├── package.json   # Dependencies and npm start script
-└── README.md      # Documentation
+├── index.js       # All the bot commands
+├── package.json   # Dependencies and start script
+└── README.md      # You are reading this
 ```
 
 ## Hosting
 
-The bot needs to run as a Node.js process and be reachable by Slack over the internet.
+The bot has to be running on a Node.js server and Slack needs to be able to reach it over the internet.
 
-For development, you can use a tunneling service to expose your local server to Slack. For a permanent deployment, use a Node-compatible host or your own server.
+For testing, you can run it on your computer and use a tunneling service to give Slack a public URL. For a real deployment, use a Node.js-friendly host or your own server.
 
-## A note about the calculator
+## A couple things to know
 
-The calculator checks the expression before evaluating it and only allows numbers, whitespace, parentheses, and basic arithmetic symbols. It is meant for simple math, not as a general-purpose programming language.
+The calculator is intentionally pretty limited. It only allows numbers, spaces, parentheses, and basic math symbols.
+
+Also, this bot doesn't use a database right now. Everything is just in the app itself, which is part of why it's pretty easy to mess around with.
 
 ## Contributing
 
-Found a bug or have a command idea? Open an issue or submit a pull request. Small improvements are welcome, especially commands that fit the Hackaway theme without making the bot unnecessarily complicated.
+Found a bug or have a cool command idea? Open an issue or make a pull request.
+
+I'm especially interested in commands that would actually be fun in a Hackaway Slack workspace.
 
 ## License
 
-No license is currently specified for this repository. Add a license if you want to clearly define how others may use, modify, or redistribute the code.
+There isn't a license on this repo right now.
 
 ---
 
-Built for Hackaway. Made to be messed with. 🚀
+Made for Hackaway because Slack doesn't have enough random buttons already. 😎
